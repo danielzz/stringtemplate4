@@ -47,7 +47,21 @@ public class STGroupDir extends STGroup {
 
     public STGroupDir(String dirName) { this(dirName, '<', '>'); }
 
+    public STGroupDir(String dirName, ClassLoader cl) {
+        this(dirName, cl, '<', '>');
+    }
+
     public STGroupDir(String dirName, char delimiterStartChar, char delimiterStopChar) {
+        this(dirName, (ClassLoader)null, delimiterStartChar, delimiterStopChar);
+	}
+
+    /**
+     * ClassLoader as a parameter. This makes it possible that one can put the templates
+     * in other ClassLoader while the ST classes are loaded by a different ClassLoader.
+     *
+     * This is usually seen with OSGi or other module frameworks.
+     */
+    public STGroupDir(String dirName, ClassLoader cl, char delimiterStartChar, char delimiterStopChar) {
         super(delimiterStartChar, delimiterStopChar);
         this.groupDirName = dirName;
 		File dir = new File(dirName);
@@ -62,7 +76,11 @@ public class STGroupDir extends STGroup {
 			if ( verbose ) System.out.println("STGroupDir("+dirName+") found at "+root);
 		}
 		else {
-			ClassLoader cl = Thread.currentThread().getContextClassLoader();
+
+            if (cl == null) {
+                cl = Thread.currentThread().getContextClassLoader();
+            }
+
 			root = cl.getResource(dirName);
 			if ( root==null ) {
 				cl = this.getClass().getClassLoader();
@@ -74,18 +92,26 @@ public class STGroupDir extends STGroup {
 													   dirName);
 			}
 		}
-	}
+    }
+
 
 	public STGroupDir(String dirName, String encoding) {
         this(dirName, encoding, '<', '>');
     }
 
     public STGroupDir(String dirName, String encoding,
-                      char delimiterStartChar, char delimiterStopChar)
+                      char delimiterStartChar, char delimiterStopChar) 
     {
         this(dirName, delimiterStartChar, delimiterStopChar);
         this.encoding = encoding;
     }
+
+    public STGroupDir(String dirName, ClassLoader cl, String encoding, 
+                      char delimiterStartChar, char delimiterStopChar) {
+        this(dirName, cl, delimiterStartChar, delimiterStopChar);
+        this.encoding = encoding;
+    }
+
 
 	public STGroupDir(URL root, String encoding,
 					  char delimiterStartChar, char delimiterStopChar)
